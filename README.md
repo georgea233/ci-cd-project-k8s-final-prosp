@@ -284,7 +284,7 @@ Copy your Nexus Public IP Address and paste on the browser = http:://NexusServer
     - Goto Settings --> Webhooks --> Click on Add webhook 
     - Payload URL: **http://REPLACE-JENKINS-SERVER-PUBLIC-IP:8080/github-webhook/**             (Note: The IP should be public as GitHub is outside of the AWS VPC where Jenkins server is hosted)
     - Click on Add webhook
-rrrt5
+
 2) #### Configure on the Jenkins side to pull based on the event
     - Access your jenkins server, pipeline **app-cicd-pipeline**
     - Once pipeline is accessed --> Click on Configure --> In the General section --> **Select GitHub project checkbox** and fill your repo URL of the project jjtech-ci-cd-pipeline-project-k8s.
