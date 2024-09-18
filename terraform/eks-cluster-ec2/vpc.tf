@@ -36,51 +36,51 @@ resource "aws_internet_gateway" "igw" {
 # Internal-elb tag used by EKS to select subnets to create private load balancers and elb tag for public load balancers. 
 # Also, you need to have a cluster tag with owned or shared value.
 
-resource "aws_subnet" "private-us-east-1a" {
+resource "aws_subnet" "private-us-east-2a" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.20.0.0/24"
-  availability_zone = "us-east-1a"
+  availability_zone = "us-east-2a"
 
   tags = {
-    "Name"                                      = "private-us-east-1a"
+    "Name"                                      = "private-us-east-2a"
     "kubernetes.io/role/internal-elb"           = "1"
     "kubernetes.io/cluster/${var.cluster_name}" = "owned"
   }
 }
 
-resource "aws_subnet" "private-us-east-1b" {
+resource "aws_subnet" "private-us-east-2b" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.20.32.0/24"
-  availability_zone = "us-east-1b"
+  availability_zone = "us-east-2b"
 
   tags = {
-    "Name"                                      = "private-us-east-1b"
+    "Name"                                      = "private-us-east-2b"
     "kubernetes.io/role/internal-elb"           = "1"
     "kubernetes.io/cluster/${var.cluster_name}" = "owned"
   }
 }
 
-resource "aws_subnet" "public-us-east-1a" {
+resource "aws_subnet" "public-us-east-2a" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.20.64.0/24"
-  availability_zone       = "us-east-1a"
+  availability_zone       = "us-east-2a"
   map_public_ip_on_launch = true
 
   tags = {
-    "Name"                                      = "public-us-east-1a"
+    "Name"                                      = "public-us-east-2a"
     "kubernetes.io/role/elb"                    = "1"
     "kubernetes.io/cluster/${var.cluster_name}" = "owned"
   }
 }
 
-resource "aws_subnet" "public-us-east-1b" {
+resource "aws_subnet" "public-us-east-2b" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.20.96.0/20"
-  availability_zone       = "us-east-1b"
+  availability_zone       = "us-east-2b"
   map_public_ip_on_launch = true
 
   tags = {
-    "Name"                                      = "public-us-east-1b"
+    "Name"                                      = "public-us-east-2b"
     "kubernetes.io/role/elb"                    = "1"
     "kubernetes.io/cluster/${var.cluster_name}" = "owned"
   }
@@ -88,7 +88,7 @@ resource "aws_subnet" "public-us-east-1b" {
 
 
 resource "aws_eip" "nat" {
-  vpc = true
+  # vpc = true
 
   tags = {
     Name = "nat"
@@ -99,7 +99,7 @@ resource "aws_eip" "nat" {
 
 resource "aws_nat_gateway" "nat" {
   allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public-us-east-1a.id
+  subnet_id     = aws_subnet.public-us-east-2a.id
 
   tags = {
     Name = "nat"
@@ -142,22 +142,22 @@ resource "aws_route_table" "public" {
   }
 }
 
-resource "aws_route_table_association" "private-us-east-1a" {
-  subnet_id      = aws_subnet.private-us-east-1a.id
+resource "aws_route_table_association" "private-us-east-2a" {
+  subnet_id      = aws_subnet.private-us-east-2a.id
   route_table_id = aws_route_table.private.id
 }
 
-resource "aws_route_table_association" "private-us-east-1b" {
-  subnet_id      = aws_subnet.private-us-east-1b.id
+resource "aws_route_table_association" "private-us-east-2b" {
+  subnet_id      = aws_subnet.private-us-east-2b.id
   route_table_id = aws_route_table.private.id
 }
 
-resource "aws_route_table_association" "public-us-east-1a" {
-  subnet_id      = aws_subnet.public-us-east-1a.id
+resource "aws_route_table_association" "public-us-east-2a" {
+  subnet_id      = aws_subnet.public-us-east-2a.id
   route_table_id = aws_route_table.public.id
 }
 
-resource "aws_route_table_association" "public-us-east-1b" {
-  subnet_id      = aws_subnet.public-us-east-1b.id
+resource "aws_route_table_association" "public-us-east-2b" {
+  subnet_id      = aws_subnet.public-us-east-2b.id
   route_table_id = aws_route_table.public.id
 }
