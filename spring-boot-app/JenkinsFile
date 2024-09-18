@@ -130,37 +130,63 @@ pipeline {
                   sh "sudo usermod -aG docker jenkins"
           }
       }
-
+  
     stage('Build and Push Docker Image') {
-      environment {
+    environment {
         awsAccountId = '755317065494'
         region = 'us-east-2'
         repositoryName = 'jjtech-demo'
         dockerImageTag = "${BUILD_NUMBER}"
         ecrRegistry = "${awsAccountId}.dkr.ecr.${region}.amazonaws.com"
-      }
-      steps {
+    }
+    steps {
         script {
-
-            // // Install docker on jenkins server
-
-            // sh "sudo yum install docker -y" 
-            // sh "sudo systemctl start docker"
-            // sh "sudo systemctl  enable docker"
-            // sh "sudo usermod -a -G docker jenkins"
             // Build the Docker image
             sh "cd spring-boot-app && docker build -t ${repositoryName}:${dockerImageTag} ."
 
             // Authenticate and push the Docker image to ECR
-                sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${ecrRegistry}"
-                sh "docker tag ${repositoryName}:${dockerImageTag} ${ecrRegistry}/${repositoryName}:${dockerImageTag}"
-                sh "docker push ${ecrRegistry}/${repositoryName}:${dockerImageTag}"
-                sh "docker rmi ${ecrRegistry}/${repositoryName}:${dockerImageTag}"
-                sh " docker rmi ${repositoryName}:${dockerImageTag}"
-      }
+            sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${ecrRegistry}"
+            sh "docker tag ${repositoryName}:${dockerImageTag} ${ecrRegistry}/${repositoryName}:${dockerImageTag}"
+            sh "docker push ${ecrRegistry}/${repositoryName}:${dockerImageTag}"
+            
+            // Optionally, remove local images
+            sh "docker rmi ${ecrRegistry}/${repositoryName}:${dockerImageTag} || true"
+            sh "docker rmi ${repositoryName}:${dockerImageTag} || true"
+        }
     }
+}
 
-    } 
+
+    // stage('Build and Push Docker Image') {
+    //   environment {
+    //     awsAccountId = '755317065494'
+    //     region = 'us-east-2'
+    //     repositoryName = 'jjtech-demo'
+    //     dockerImageTag = "${BUILD_NUMBER}"
+    //     ecrRegistry = "${awsAccountId}.dkr.ecr.${region}.amazonaws.com"
+    //   }
+    //   steps {
+    //     script {
+
+    //         // // Install docker on jenkins server
+
+    //         // sh "sudo yum install docker -y" 
+    //         // sh "sudo systemctl start docker"
+    //         // sh "sudo systemctl  enable docker"
+    //         // sh "sudo usermod -a -G docker jenkins"
+    //         // Build the Docker image
+    //         sh "cd spring-boot-app && docker build -t ${repositoryName}:${dockerImageTag} ."
+
+    //         // Authenticate and push the Docker image to ECR
+    //             sh "aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${ecrRegistry}"
+    //             sh "docker tag ${repositoryName}:${dockerImageTag} ${ecrRegistry}/${repositoryName}:${dockerImageTag}"
+    //             sh "docker push ${ecrRegistry}/${repositoryName}:${dockerImageTag}"
+    //             sh "docker rmi ${ecrRegistry}/${repositoryName}:${dockerImageTag}"
+    //             sh " docker rmi ${repositoryName}:${dockerImageTag}"
+    //   }
+    // }
+
+    // } 
     
     stage('Install kubectl') {
             steps {
