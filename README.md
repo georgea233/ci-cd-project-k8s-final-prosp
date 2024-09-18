@@ -165,6 +165,7 @@ systemctl status nexus
         - **maven Integration**
         - **Terraform**
         - **ssh pipeline**
+        - **Docker**
         
     - Once all plugins are installed, select **Restart Jenkins when installation is complete and no jobs are running**
 
