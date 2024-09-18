@@ -3,7 +3,7 @@ pipeline {
   
   environment {
         WORKSPACE = "${env.WORKSPACE}"
-        AWS_DEFAULT_REGION = "us-east-1"
+        AWS_DEFAULT_REGION = "us-east-2"
     }
 
   tools {
@@ -89,7 +89,7 @@ pipeline {
     }
     stage('Static Code Analysis') {
       environment {
-        SONAR_URL = "http://44.201.109.93:9000/"
+        SONAR_URL = "http://172.31.24.74:9000/"
       }
       steps {
         withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_AUTH_TOKEN')]) {
@@ -123,8 +123,8 @@ pipeline {
 
     stage('Build and Push Docker Image') {
       environment {
-        awsAccountId = '389029577690'
-        region = 'us-east-1'
+        awsAccountId = '755317065494'
+        region = 'us-east-2'
         repositoryName = 'jjtech-demo'
         dockerImageTag = "${BUILD_NUMBER}"
         ecrRegistry = "${awsAccountId}.dkr.ecr.${region}.amazonaws.com"
@@ -173,7 +173,7 @@ pipeline {
 
     stage("Deploy to EKS"){
         environment {
-        region = 'us-east-1'
+        region = 'us-east-2'
         clusterName = 'jjtech-demo-cluster'
       }       
         steps {  
