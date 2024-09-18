@@ -127,7 +127,7 @@ pipeline {
                   // sh "sudo yum install docker -y" 
                   // sh "sudo systemctl start docker"
                   // sh "sudo systemctl enable docker"
-                  // sh "sudo usermod -aG docker jenkins"
+                  sh "sudo usermod -aG docker jenkins"
                   sh "sudo chown root:docker /var/run/docker.sock"
                   sh "sudo chmod 660 /var/run/docker.sock"
                   sh "sudo systemctl restart docker"

@@ -19,6 +19,37 @@
     - Security Group (Open): 8080, 9100 and 22 to 0.0.0.0/0
     - Key pair: Select or create a new keypair
     - **Attach Jenkins server with IAM role for ec2 service having "AdministratorAccess"**
+    - I used this scfript to install jenkins: 
+
+```bash
+#!/bin/bash
+set -e
+
+LOG_FILE="/var/log/userdata.log"
+exec > >(tee -a $LOG_FILE|logger -t user-data -s 2>/dev/console) 2>&1
+
+# Function to log and execute commands
+
+run_command() {
+  echo "Running: $1"
+  eval "$1"
+}
+
+# Update and install required packages
+
+run_command "sudo yum update -y"
+run_command "sudo wget -O /etc/yum.repos.d/jenkins.repo <https://pkg.jenkins.io/redhat-stable/jenkins.repo>"
+run_command "sudo rpm --import <https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key>"
+run_command "sudo amazon-linux-extras install epel -y"
+run_command "sudo amazon-linux-extras install java-openjdk11 -y"
+run_command "sudo yum install jenkins git ansible python-pip -y"
+run_command "sudo pip install boto3"
+run_command 'echo "jenkins ALL=(ALL) NOPASSWD: ALL" | sudo tee -a /etc/sudoers'
+run_command "sudo systemctl enable jenkins"
+run_command "sudo systemctl start jenkins"
+
+```bash
+
     - User data (Copy the following user data):
 ```bash 
 #!/bin/bash
@@ -43,6 +74,67 @@ sh jenkins-install.sh
     - Instance type: t2.medium
     - Security Group (Open): 8081, 9100 and 22 to 0.0.0.0/0
     - Key pair: Select or create a new keypair
+    - I used this script instead to create nexus:
+
+```bash
+
+#!/bin/bash
+
+# Update system packages
+yum update -y
+
+# Install Java 11 (required for Nexus)
+amazon-linux-extras enable corretto8
+yum install java-11-amazon-corretto -y
+
+# Create a nexus user
+useradd nexus
+echo "nexus  ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers
+
+# Download Nexus
+cd /opt
+wget https://download.sonatype.com/nexus/3/latest-unix.tar.gz
+
+# Extract Nexus
+tar -zxvf latest-unix.tar.gz
+mv nexus-* nexus
+chown -R nexus:nexus /opt/nexus
+chown -R nexus:nexus /opt/sonatype-work
+
+# Create a nexus service
+cat <<EOF > /etc/systemd/system/nexus.service
+[Unit]
+Description=Nexus service
+After=network.target
+
+[Service]
+Type=forking
+LimitNOFILE=65536
+ExecStart=/opt/nexus/bin/nexus start
+ExecStop=/opt/nexus/bin/nexus stop
+User=nexus
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Set run as nexus user in Nexus configuration
+sed -i 's/#run_as_user=""/run_as_user="nexus"/' /opt/nexus/bin/nexus.rc
+
+# Enable and start the Nexus service
+systemctl enable nexus
+systemctl start nexus
+
+# Open firewall for Nexus (port 8081)
+firewall-cmd --zone=public --add-port=8081/tcp --permanent
+firewall-cmd --reload
+
+# Check Nexus status
+systemctl status nexus
+
+```bash
+
     - User data (Copy the following user data): https://github.com/anselmenumbisia/jjtech-ci-cd-pipeline-project-k8s/blob/main/installation-scripts/nexus.sh
     - Launch Instance
 
