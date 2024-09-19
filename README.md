@@ -342,4 +342,4 @@ Once both the above steps are done click on Save.
 - Navigate to ec2 in AWS management console
 - Get public of workernode servers for cluster
 - modify security group to allow all inbound traffic from 30080 (The sample app deployed in the cluster is exposed using a NodepOrt service and the nodePort is 30080)
-- copy pulic ip of the cluster worker server and and run on browser. you need to add a colon and the nodePort number in order to access the application on the browser e.g http://example_ip:30080
+- copy pulic ip of the cluster worker server and and run on browser. you need to add a colon and the nodePort number in order to access the application on the browser e.
